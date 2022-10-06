@@ -1,3 +1,7 @@
+.appMain {
+  font-family: "NanumSquare", sans-serif;
+}
+
 .appTitle {
   display: flex;
   justify-content: center;
