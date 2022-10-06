@@ -9,25 +9,33 @@ import { faCloudArrowDown, faEraser } from "@fortawesome/free-solid-svg-icons";
 
 function App() {
   const [currentImg, setCurrentImg] = useState(0);
+  const [textChanged, setTextChanged] = useState(false);
   const [imageText, setImageText] = useState(images[currentImg].text);
+  const imageAreaRef = useRef(null);
   const textInputRef = useRef(null);
-
-  useEffect(() => {
-    resetImageText();
-  }, [currentImg]);
 
   const handleChangeImage = (value) => {
     setCurrentImg(value);
+    if (!textChanged) {
+      setImageText(images[value].text);
+      textInputRef.current.value = images[value].text;
+    }
+  };
+
+  const handleChangeText = (text) => {
+    setImageText(text);
+    setTextChanged(true);
   };
 
   const resetImageText = () => {
     setImageText(images[currentImg].text);
     textInputRef.current.value = images[currentImg].text;
+    setTextChanged(false);
   };
 
   const handleDownloadImage = () => {
     htmlToImage
-      .toPng(document.getElementById("imageArea"))
+      .toPng(imageAreaRef.current)
       .then((dataUrl) => {
         download(dataUrl, `loa-meme-${Date.now()}.png`);
       })
@@ -37,14 +45,8 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="appMain">
       <div className="appTitle">로스트아크 짤 생성기</div>
-      <div>&nbsp;</div>
-      <div id="imageArea" className="imageArea">
-        <img src={images[currentImg].src} width="720px" height="405px" />
-        <div className="imageText">{imageText}</div>
-      </div>
-      <div>&nbsp;</div>
       <div className="optionArea">
         <Form.Select
           defaultValue={currentImg}
@@ -56,18 +58,33 @@ function App() {
             </option>
           ))}
         </Form.Select>
-        <Form.Control
-          type="text"
-          ref={textInputRef}
-          defaultValue={imageText}
-          onChange={(e) => setImageText(e.target.value)}
-        />
-        <Button variant="primary" onClick={() => handleDownloadImage()}>
-          <FontAwesomeIcon icon={faCloudArrowDown} />
-        </Button>
-        <Button variant="danger" onClick={() => resetImageText()}>
-          <FontAwesomeIcon icon={faEraser} />
-        </Button>
+      </div>
+      <div ref={imageAreaRef} className="imageArea">
+        <img src={images[currentImg].src} />
+        <div className="imageText">{imageText}</div>
+      </div>
+      <div className="optionArea">
+        <div className="optionInput">
+          <div className="optionLabel">텍스트 입력</div>
+          <div className="optionText">
+            <Form.Control
+              type="text"
+              ref={textInputRef}
+              defaultValue={imageText}
+              onChange={(e) => handleChangeText(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="buttonArea">
+          <Button variant="primary" onClick={() => handleDownloadImage()}>
+            <FontAwesomeIcon icon={faCloudArrowDown} />
+            &nbsp;다운로드
+          </Button>
+          <Button variant="danger" onClick={() => resetImageText()}>
+            <FontAwesomeIcon icon={faEraser} />
+            &nbsp;내용 초기화
+          </Button>
+        </div>
       </div>
       <div className="appFooter">Made by 김뷰엘 with 💖</div>
     </div>
