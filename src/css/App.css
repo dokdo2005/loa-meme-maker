@@ -40,7 +40,12 @@
 }
 
 .optionLabel {
+  width: 80pt;
   font-weight: bold;
+}
+
+.optionText {
+  width: 100%;
 }
 
 .buttonArea {
