@@ -3,7 +3,7 @@ import images from "./data/images.json";
 import "./css/App.css";
 import download from "downloadjs";
 import * as htmlToImage from "html-to-image";
-import { Button, Form } from "react-bootstrap";
+import { Alert, Button, Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloudArrowDown, faEraser } from "@fortawesome/free-solid-svg-icons";
 
@@ -11,8 +11,14 @@ function App() {
   const [currentImg, setCurrentImg] = useState(0);
   const [textChanged, setTextChanged] = useState(false);
   const [imageText, setImageText] = useState(images[currentImg].text);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertErrorText, setErrorText] = useState(null);
   const imageAreaRef = useRef(null);
   const textInputRef = useRef(null);
+
+  useEffect(() => {
+    return handleAlert(false);
+  }, []);
 
   const handleChangeImage = (value) => {
     setCurrentImg(value);
@@ -34,18 +40,59 @@ function App() {
   };
 
   const handleDownloadImage = () => {
-    htmlToImage
-      .toPng(imageAreaRef.current)
-      .then((dataUrl) => {
-        download(dataUrl, `loa-meme-${Date.now()}.png`);
-      })
-      .catch(function (error) {
-        console.error("다운로드 중 오류 발생", error);
-      });
+    if (imageText.length > 0) {
+      htmlToImage
+        .toPng(imageAreaRef.current)
+        .then((dataUrl) => {
+          download(dataUrl, `loa-meme-${Date.now()}.png`);
+        })
+        .catch(function (error) {
+          handleAlert(
+            true,
+            `이미지 다운로드 중 오류가 발생하였습니다.\n${error}`
+          );
+          setTimeout(() => {
+            handleAlert(false);
+          }, "3000");
+        });
+    } else {
+      handleAlert(true, "텍스트를 입력해주세요.");
+      setTimeout(() => {
+        handleAlert(false);
+      }, "3000");
+    }
+  };
+
+  const handleAlert = (boolean, text) => {
+    setShowAlert(boolean);
+    if (boolean) {
+      setErrorText(text);
+    } else {
+      setErrorText(null);
+    }
+  };
+
+  const ErrorAlert = () => {
+    return (
+      <Alert
+        variant="danger"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+        }}
+        onClose={() => setShowAlert(false)}
+        dismissible
+      >
+        {alertErrorText}
+      </Alert>
+    );
   };
 
   return (
     <div className="appMain">
+      {showAlert ? <ErrorAlert /> : null}
       <div className="appTitle">로스트아크 짤 생성기</div>
       <div className="optionArea">
         <Form.Select
