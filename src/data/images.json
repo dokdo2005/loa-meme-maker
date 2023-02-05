@@ -10,5 +10,11 @@
     "src": "/images/image2.jpeg",
     "name": "모험가님 에휴 됐습니다",
     "text": "모험가님! 에휴... 됐습니다"
+  },
+  {
+    "id": 2,
+    "src": "/images/image3.png",
+    "name": "괴 괴물",
+    "text": "괴... 괴물..."
   }
 ]
